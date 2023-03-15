@@ -1,27 +1,26 @@
-# name: blog
-# about: blog frontend for Discourse
-# version: 0.1
-# authors: Sam Saffron
+# frozen_string_literal: true
 
-::BLOG_HOST = Rails.env.development? ? "dev.samsaffron.com" : "samsaffron.com"
-::BLOG_DISCOURSE = Rails.env.development? ? "l.discourse" : "discuss.samsaffron.com"
+# name: discourse-plugin-name
+# about: TODO
+# version: 0.0.1
+# authors: Discourse
+# url: TODO
+# required_version: 2.7.0
 
-module ::Blog
-  class Engine < ::Rails::Engine
-    engine_name "blog"
-    isolate_namespace Blog
-  end
+::BLOG_HOST = "onion.tryp.digital"
+::BLOG_DISCOURSE = "tryp226d7fpfih3tx6i2gfawp4fedzwipunedekpgigpcfiy3pav6wyd.onion" 
+
+enabled_site_setting :plugin_name_enabled
+
+module ::MyPluginModule
+  PLUGIN_NAME = "dimitris-plugin"
 end
 
-Rails.configuration.assets.precompile += ['LAB.js', 'blog.css']
-
-if Rails.env.development?
-  require 'middleware/enforce_hostname'
-  Rails.configuration.middleware.insert_after Rack::MethodOverride, Middleware::EnforceHostname
-end
+require_relative "lib/my_plugin_module/engine"
 
 after_initialize do
-  # got to patch this class to allow more hostnames
+  # Code which should run after Rails has finished booting
+    # got to patch this class to allow more hostnames
   class ::Middleware::EnforceHostname
     def call(env)
       hostname = env[Rack::Request::HTTP_X_FORWARDED_HOST].presence || env[Rack::HTTP_HOST]
@@ -33,9 +32,12 @@ after_initialize do
       else
         env[Rack::HTTP_HOST] = ::BLOG_DISCOURSE
       end
+
       @app.call(env)
     end
   end
+
+end
 
   load File.expand_path("../app/jobs/blog_update_twitter.rb", __FILE__)
 
