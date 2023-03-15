@@ -16,7 +16,7 @@ module ::MyPluginModule
   PLUGIN_NAME = "dimitris-plugin"
 end
 
-require_relative "lib/my_plugin_module/engine"
+require_relative "lib/engine"
 
 after_initialize do
   # Code which should run after Rails has finished booting
